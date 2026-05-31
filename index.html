@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Agronat</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f0e;
+    --bg2: #141716;
+    --bg3: #1c1f1d;
+    --border: #2a2e2b;
+    --border2: #3a3f3b;
+    --amber: #e8a020;
+    --amber2: #f5b840;
+    --amber-dim: #8a5c10;
+    --green: #4caf82;
+    --green-dim: #2a6648;
+    --red: #cf5050;
+    --text: #d4d8d5;
+    --text-dim: #7a8a7d;
+    --text-bright: #eef2ef;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'Barlow Condensed', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 32px;
+  }
+
+  .login-logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  .login-logo span {
+    display: block;
+    font-family: var(--sans);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    margin-bottom: 4px;
+  }
+
+  .login-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 32px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .login-card h2 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-group label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  .field-group input, .field-group select {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text-bright);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .field-group input:focus, .field-group select:focus {
+    border-color: var(--amber);
+  }
+
+  .field-group select option { background: var(--bg3); }
+
+  .btn-primary {
+    background: var(--amber);
+    color: #0d0f0e;
+    border: none;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 12px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover { background: var(--amber2); }
+  .btn-primary:disabled { background: var(--border2); color: var(--text-dim); cursor: not-allowed; }
+
+  .error-msg {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--red);
+    text-align: center;
+    min-height: 14px;
+  }
+
+  /* ── APP SHELL ── */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-brand {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    color: var(--amber);
+  }
+
+  .header-brand span {
+    font-weight: 300;
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-left: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .user-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+
+  .user-badge strong { color: var(--amber); }
+
+  .btn-logout {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-logout:hover { border-color: var(--amber-dim); color: var(--amber); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 0 24px;
+  }
+
+  .tab {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+  /* ── MAIN CONTENT ── */
+  main { flex: 1; padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+  /* ── FORM VIEW ── */
+  .form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .form-header h1 {
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--text-bright);
+  }
+
+  .form-header .period-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    background: rgba(232,160,32,0.1);
+    border: 1px solid var(--amber-dim);
+    padding: 6px 12px;
+  }
+
+  .period-selector {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .period-selector label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  .period-selector select, .period-selector input[type=number] {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text-bright);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 7px 10px;
+    outline: none;
+  }
+
+  .period-selector select:focus, .period-selector input[type=number]:focus {
+    border-color: var(--amber);
+  }
+
+  /* ── LOCATION SECTIONS ── */
+  .location-section {
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .location-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .location-header:hover { background: #1f2320; }
+
+  .location-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .location-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--bg);
+    background: var(--amber-dim);
+    padding: 2px 7px;
+  }
+
+  .location-name {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-bright);
+  }
+
+  .location-subtotal {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--amber);
+  }
+
+  .location-chevron {
+    font-size: 10px;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+  }
+
+  .location-section.collapsed .location-chevron { transform: rotate(-90deg); }
+  .location-section.collapsed .location-body { display: none; }
+
+  .location-body {
+    padding: 0;
+  }
+
+  /* ── STOCK ROWS ── */
+  .stock-row {
+    display: grid;
+    grid-template-columns: 1fr 180px 100px;
+    align-items: center;
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    transition: background 0.15s;
+  }
+
+  .stock-row:last-child { border-bottom: none; }
+  .stock-row:hover { background: rgba(255,255,255,0.02); }
+
+  .stock-row.glp-row {
+    grid-template-columns: 1fr 120px 60px 60px;
+  }
+
+  .row-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    letter-spacing: 0.03em;
+  }
+
+  .row-product {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+
+  .row-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .row-input {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    color: var(--text-bright);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 6px 8px;
+    width: 100%;
+    outline: none;
+    text-align: right;
+    transition: border-color 0.2s;
+  }
+
+  .row-input:focus { border-color: var(--amber); }
+  .row-input:read-only { color: var(--text-dim); background: var(--bg3); cursor: not-allowed; }
+
+  .row-unit {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  /* subtotal row */
+  .subtotal-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: rgba(232,160,32,0.05);
+    border-top: 1px solid var(--amber-dim);
+  }
+
+  .subtotal-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  .subtotal-value {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--amber);
+    min-width: 80px;
+    text-align: right;
+  }
+
+  /* ── PRODUCT TOTALS PANEL ── */
+  .product-totals {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+    padding: 16px;
+  }
+
+  .product-totals h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .totals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .total-chip {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .total-chip .chip-product {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .total-chip .chip-value {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--green);
+  }
+
+  .total-chip .chip-unit {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--green-dim);
+  }
+
+  /* ── SUBMIT BAR ── */
+  .submit-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .submit-info {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .submit-info strong { color: var(--amber); }
+
+  .btn-submit {
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-submit:hover { background: var(--green); color: var(--bg); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── HISTORIAL ── */
+  .section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .hist-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  thead tr {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border2);
+  }
+
+  th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td.num { text-align: right; color: var(--amber); }
+  td.period { color: var(--green); }
+
+  /* ── DASHBOARD ── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .chart-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .chart-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .mini-chart {
+    height: 80px;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .bar {
+    width: 100%;
+    background: var(--amber-dim);
+    transition: height 0.4s ease;
+    min-height: 2px;
+    position: relative;
+  }
+
+  .bar:hover { background: var(--amber); }
+
+  .bar-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-dim);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .bar-val {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--amber);
+    text-align: center;
+  }
+
+  .current-val {
+    font-family: var(--mono);
+    font-size: 24px;
+    color: var(--amber2);
+    margin-bottom: 4px;
+  }
+
+  .current-unit {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ── LOADING / STATUS ── */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    gap: 12px;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    right: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    padding: 12px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  .empty-state {
+    padding: 48px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  .glp-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+  }
+
+  .glp-cell {
+    padding: 10px 12px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .glp-cell:last-child { border-right: none; }
+
+  .glp-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .glp-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .glp-pct {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* GLP bar visual */
+  .glp-bar-bg {
+    height: 4px;
+    background: var(--border2);
+    margin-top: 4px;
+  }
+
+  .glp-bar-fill {
+    height: 100%;
+    background: var(--amber-dim);
+    transition: width 0.3s;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-logo">
+    <span>AGRONAT</span>
+    SISTEMA DE STOCK · PERÍODO
+  </div>
+  <div class="login-card">
+    <h2>ACCESO AL SISTEMA</h2>
+    <div class="field-group">
+      <label>USUARIO</label>
+      <select id="login-user">
+        <option value="">— Seleccioná —</option>
+        <option value="federico">Federico</option>
+        <option value="joaquin">Joaquín</option>
+        <option value="marcelo">Marcelo</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>CONTRASEÑA</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="off">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">INGRESAR</button>
+    <div class="error-msg" id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="header-brand">AGRONAT <span>STOCK PERÍODO</span></div>
+    <div class="header-right">
+      <div class="user-badge">USUARIO: <strong id="user-display"></strong></div>
+      <button class="btn-logout" onclick="doLogout()">SALIR</button>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs-bar">
+    <button class="tab active" onclick="switchTab('ingreso')" id="tab-ingreso">INGRESO STOCK</button>
+    <button class="tab" onclick="switchTab('historial')" id="tab-historial">HISTORIAL</button>
+    <button class="tab" onclick="switchTab('dashboard')" id="tab-dashboard">DASHBOARD</button>
+  </div>
+
+  <main>
+    <!-- INGRESO -->
+    <div id="view-ingreso">
+      <div class="form-header">
+        <h1>Ingreso de Stock</h1>
+      </div>
+
+      <div class="period-selector">
+        <label>PERÍODO</label>
+        <select id="period-type">
+          <option value="fin">FIN DE MES</option>
+          <option value="mid">MEDIADOS</option>
+        </select>
+        <label>MES</label>
+        <select id="period-month">
+          <option value="1">Enero</option><option value="2">Febrero</option>
+          <option value="3">Marzo</option><option value="4">Abril</option>
+          <option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option>
+          <option value="9">Septiembre</option><option value="10">Octubre</option>
+          <option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <label>AÑO</label>
+        <input type="number" id="period-year" value="2025" min="2024" max="2035" style="width:80px">
+      </div>
+
+      <!-- Totales por producto -->
+      <div class="product-totals">
+        <h3>TOTALES POR PRODUCTO (TODAS LAS UBICACIONES)</h3>
+        <div class="totals-grid" id="product-totals-grid"></div>
+      </div>
+
+      <!-- Sections -->
+      <div id="stock-sections"></div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div id="view-historial" style="display:none">
+      <div class="section-title">REGISTROS HISTÓRICOS</div>
+      <div id="hist-content"><div class="loading"><div class="spinner"></div>CARGANDO...</div></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" style="display:none">
+      <div class="section-title">EVOLUCIÓN DE STOCKS</div>
+      <div id="dash-content"><div class="loading"><div class="spinner"></div>CARGANDO...</div></div>
+    </div>
+  </main>
+
+  <div class="submit-bar" id="submit-bar" style="display:none">
+    <div class="submit-info">Período: <strong id="submit-period-label"></strong></div>
+    <button class="btn-submit" id="btn-submit" onclick="submitStock()">GUARDAR STOCK</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx86jTxBUOGutzio0WeM4wtLcfjBFRXT_Bi155WFRuwj0431FT-JempuB-uiHFBJgZf/exec';
+
+const USERS = {
+  federico:  { pass: 'admin2024', role: 'admin' },
+  joaquin:   { pass: 'admin2024', role: 'admin' },
+  marcelo:   { pass: 'stock2024', role: 'operario' }
+};
+
+// ── ESTRUCTURA DE STOCK ──
+// Cada sección: { id, planta, nombre, items[] }
+// Cada item: { id, label, product, unit }
+// unit: 'ton' | '%'
+
+const SECTIONS = [
+  {
+    id: 'r12_silos_exp',
+    planta: 'RUTA 12',
+    nombre: 'Silos Expeller',
+    items: [
+      { id: 's1_exp',  label: 'S1',  product: 'CPA', unit: 'ton' },
+      { id: 's2_exp',  label: 'S2',  product: 'CPA', unit: 'ton' },
+      { id: 's3_exp',  label: 'S3',  product: 'CPA', unit: 'ton' },
+      { id: 's4_exp',  label: 'S4',  product: 'CPA', unit: 'ton' },
+    ]
+  },
+  {
+    id: 'r12_tanques',
+    planta: 'RUTA 12',
+    nombre: 'Tanques Aceite',
+    items: [
+      { id: 'tk1',     label: 'TK1',          product: 'Aceite p/quemar',  unit: 'ton' },
+      { id: 'tk2',     label: 'TK2',          product: 'Aceite Soja',      unit: 'ton' },
+      { id: 'tk3',     label: 'TK3',          product: 'Aceite Soja',      unit: 'ton' },
+      { id: 'tk4',     label: 'TK4',          product: 'Aceite Soja',      unit: 'ton' },
+      { id: 'tk5',     label: 'TK5',          product: 'Aceite Soja',      unit: 'ton' },
+      { id: 'tk6',     label: 'TK6',          product: 'Aceite Soja',      unit: 'ton' },
+      { id: 'tk7',     label: 'TK7',          product: 'Aceite Soja',      unit: 'ton' },
+      { id: 'tk_chapa',label: 'TK Chapa',     product: 'Aceite Soja',      unit: 'ton' },
+      { id: 'tk_sec1', label: 'TK Secadora 1',product: 'Aceite Soja',      unit: 'ton' },
+      { id: 'tk_sec2', label: 'TK Secadora 2',product: 'Aceite Soja',      unit: 'ton' },
+    ]
+  },
+  {
+    id: 'r12_equipos',
+    planta: 'RUTA 12',
+    nombre: 'Equipos Proceso',
+    items: [
+      { id: 'pulmon',    label: 'TK Pulmón Filtro',            product: 'Aceite Soja', unit: 'ton' },
+      { id: 'agit_pre',  label: 'Agitador previo decanter',    product: 'Aceite Soja', unit: 'ton' },
+      { id: 'agit_post', label: 'Agitador post borrero chico', product: 'Aceite Soja', unit: 'ton' },
+    ]
+  },
+  {
+    id: 'r12_granel',
+    planta: 'RUTA 12',
+    nombre: 'Granel Suelto',
+    items: [
+      { id: 'descarte',  label: 'Descarte',  product: 'Descarte',  unit: 'ton' },
+      { id: 'picadillo', label: 'Picadillo', product: 'Picadillo', unit: 'ton' },
+    ]
+  },
+  {
+    id: 'r12_glp',
+    planta: 'RUTA 12',
+    nombre: 'GLP — Cilindros',
+    glp: true,
+    items: [
+      { id: 'glp_c1', label: 'C1', product: 'GLP', unit: '%' },
+      { id: 'glp_c2', label: 'C2', product: 'GLP', unit: '%' },
+      { id: 'glp_c3', label: 'C3', product: 'GLP', unit: '%' },
+      { id: 'glp_c4', label: 'C4', product: 'GLP', unit: '%' },
+      { id: 'glp_c5', label: 'C5', product: 'GLP', unit: '%' },
+      { id: 'glp_c6', label: 'C6', product: 'GLP', unit: '%' },
+    ]
+  },
+  {
+    id: 'r12_psn',
+    planta: 'RUTA 12',
+    nombre: 'Planta Soja Nueva — Silos',
+    items: [
+      { id: 's101', label: 'S101', product: 'Afrechillo Trigo', unit: 'ton' },
+      { id: 's102', label: 'S102', product: '—',                unit: 'ton' },
+      { id: 's103', label: 'S103', product: 'Afrechillo Trigo', unit: 'ton' },
+      { id: 's104', label: 'S104', product: '—',                unit: 'ton' },
+      { id: 's105', label: 'S105', product: 'Cascarilla',       unit: 'ton' },
+    ]
+  },
+  {
+    id: 'r12_psn_ace',
+    planta: 'RUTA 12',
+    nombre: 'Planta Soja Nueva — Aceite',
+    items: [
+      { id: 'psn_aceite', label: 'Aceite Soja PSN', product: 'Aceite Soja', unit: 'ton' },
+    ]
+  },
+  {
+    id: 'r12_embolsado',
+    planta: 'RUTA 12',
+    nombre: 'Embolsado',
+    items: [
+      { id: 'bol_cpa',        label: 'Bolsas CPA',                product: 'CPA',             unit: 'ton' },
+      { id: 'bol_cascarilla', label: 'Bolsas Cascarilla',         product: 'Cascarilla',       unit: 'ton' },
+      { id: 'bol_cas_bolon',  label: 'Cascarilla en bolsón',      product: 'Cascarilla',       unit: 'ton' },
+      { id: 'bol_afre',       label: 'Afrechillo Trigo embolsado',product: 'Afrechillo Trigo', unit: 'ton' },
+      { id: 'bol_racion',     label: 'Ración en bolsas',          product: 'Ración',           unit: 'ton' },
+      { id: 'bol_hipro',      label: 'Hipro embolsado',           product: 'Hipro',            unit: 'ton' },
+      { id: 'bol_maiz_part',  label: 'Maíz partido en bolsón',    product: 'Maíz partido',     unit: 'ton' },
+      { id: 'bol_maiz_ent',   label: 'Maíz entero en bolsón',     product: 'Maíz entero',      unit: 'ton' },
+      { id: 'bol_alfalfa',    label: 'Alfalfa pellet embolsada',  product: 'Alfalfa pellet',   unit: 'ton' },
+      { id: 'bol_alfalfa_bo', label: 'Pellet alfalfa en bolsón',  product: 'Alfalfa pellet',   unit: 'ton' },
+      { id: 'bol_racion_mx',  label: 'Ración mezcla embolsada',   product: 'Ración mezcla',    unit: 'ton' },
+      { id: 'bol_maiz_emb',   label: 'Maíz entero embolsado',     product: 'Maíz entero',      unit: 'ton' },
+      { id: 'bol_pg_emb',     label: 'Pellet girasol embolsado',  product: 'Pellet girasol',   unit: 'ton' },
+    ]
+  },
+  {
+    id: 'r7_silos',
+    planta: 'RUTA 7',
+    nombre: 'Silos',
+    items: [
+      { id: 'r7_s1', label: 'S1', product: 'CPA',             unit: 'ton' },
+      { id: 'r7_s2', label: 'S2', product: 'Pellet girasol',  unit: 'ton' },
+      { id: 'r7_s3', label: 'S3', product: 'Afrechillo Trigo',unit: 'ton' },
+      { id: 'r7_s4', label: 'S4', product: 'CPA',             unit: 'ton' },
+    ]
+  },
+  {
+    id: 'r7_granel',
+    planta: 'RUTA 7',
+    nombre: 'Granel / Bolsones',
+    items: [
+      { id: 'r7_calcio',  label: 'Calcio',          product: 'Calcio',         unit: 'ton' },
+      { id: 'r7_sal',     label: 'Sal',             product: 'Sal',            unit: 'ton' },
+      { id: 'r7_nucleo',  label: 'Núcleo',          product: 'Núcleo',         unit: 'ton' },
+      { id: 'r7_racion',  label: 'Ración bolsones', product: 'Ración',         unit: 'ton' },
+    ]
+  },
+  {
+    id: 'afuera_silos',
+    planta: 'AFUERA',
+    nombre: 'Silos Exteriores',
+    items: [
+      { id: 'af_s1', label: 'S1', product: 'Hipro',         unit: 'ton' },
+      { id: 'af_s2', label: 'S2', product: 'Pellet girasol',unit: 'ton' },
+      { id: 'af_s3', label: 'S3', product: 'Pellet girasol',unit: 'ton' },
+    ]
+  },
+];
+
+// Productos que se suman entre ubicaciones (excluye GLP y —)
+const AGGREGATE_PRODUCTS = [
+  'CPA', 'Aceite Soja', 'Aceite p/quemar', 'Afrechillo Trigo',
+  'Cascarilla', 'Pellet girasol', 'Hipro', 'Ración', 'Maíz entero',
+  'Alfalfa pellet', 'Descarte', 'Picadillo',
+];
+
+// ── STATE ──
+let currentUser = null;
+let currentRole = null;
+let stockValues = {};
+let historialData = [];
+
+// ── LOGIN ──
+function doLogin() {
+  const u = document.getElementById('login-user').value;
+  const p = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  if (!u) { err.textContent = 'Seleccioná un usuario'; return; }
+  if (!USERS[u]) { err.textContent = 'Usuario no válido'; return; }
+  if (USERS[u].pass !== p) { err.textContent = 'Contraseña incorrecta'; return; }
+  currentUser = u;
+  currentRole = USERS[u].role;
+  err.textContent = '';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('user-display').textContent = u.toUpperCase();
+  initApp();
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogout() {
+  currentUser = null; currentRole = null; stockValues = {};
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('login-user').value = '';
+}
+
+// ── INIT ──
+function initApp() {
+  setCurrentPeriod();
+  if (currentRole === 'operario') {
+    buildForm();
+    document.getElementById('submit-bar').style.display = 'flex';
+  } else {
+    // Admins ven las 3 tabs pero ingreso es readonly
+    buildForm(true);
+  }
+  loadHistorial();
+}
+
+function setCurrentPeriod() {
+  const now = new Date();
+  document.getElementById('period-year').value = now.getFullYear();
+  document.getElementById('period-month').value = now.getMonth() + 1;
+  const day = now.getDate();
+  document.getElementById('period-type').value = day <= 20 ? 'mid' : 'fin';
+}
+
+// ── FORM BUILD ──
+function buildForm(readonly = false) {
+  const container = document.getElementById('stock-sections');
+  container.innerHTML = '';
+
+  SECTIONS.forEach(sec => {
+    const div = document.createElement('div');
+    div.className = 'location-section';
+    div.id = 'sec_' + sec.id;
+
+    const plantaColors = { 'RUTA 12': '#4caf82', 'RUTA 7': '#e8a020', 'AFUERA': '#cf7050' };
+    const tagColor = plantaColors[sec.planta] || '#888';
+
+    div.innerHTML = `
+      <div class="location-header" onclick="toggleSection('${sec.id}')">
+        <div class="location-title">
+          <span class="location-tag" style="background:${tagColor};color:#0d0f0e">${sec.planta}</span>
+          <span class="location-name">${sec.nombre}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span class="location-subtotal" id="subtot_${sec.id}">— ton</span>
+          <span class="location-chevron">▼</span>
+        </div>
+      </div>
+      <div class="location-body" id="body_${sec.id}">
+        ${sec.glp ? buildGlpBody(sec, readonly) : buildNormalBody(sec, readonly)}
+        ${sec.glp ? '' : `<div class="subtotal-row">
+          <span class="subtotal-label">SUBTOTAL</span>
+          <span class="subtotal-value" id="sub2_${sec.id}">0.000 ton</span>
+        </div>`}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  buildProductTotals();
+  updateAllSubtotals();
+}
+
+function buildNormalBody(sec, readonly) {
+  return sec.items.map(item => `
+    <div class="stock-row">
+      <div>
+        <div class="row-label">${item.label}</div>
+        <div class="row-product">${item.product}</div>
+      </div>
+      <div class="row-input-wrap">
+        <input type="number" class="row-input" id="inp_${item.id}"
+          min="0" step="0.001" placeholder="0.000"
+          ${readonly ? 'readonly' : ''}
+          oninput="onValueChange('${sec.id}', '${item.id}', '${item.product}')">
+      </div>
+      <span class="row-unit">${item.unit}</span>
+    </div>
+  `).join('');
+}
+
+function buildGlpBody(sec, readonly) {
+  const cells = sec.items.map(item => `
+    <div class="glp-cell">
+      <div class="glp-label">${item.label}</div>
+      <div class="glp-input-wrap">
+        <input type="number" class="row-input" id="inp_${item.id}"
+          min="0" max="100" step="1" placeholder="0"
+          style="width:60px;text-align:right"
+          ${readonly ? 'readonly' : ''}
+          oninput="onGlpChange('${item.id}')">
+        <span class="glp-pct">%</span>
+      </div>
+      <div class="glp-bar-bg"><div class="glp-bar-fill" id="glpbar_${item.id}" style="width:0%"></div></div>
+    </div>
+  `).join('');
+  return `<div class="glp-grid">${cells}</div>`;
+}
+
+function buildProductTotals() {
+  const grid = document.getElementById('product-totals-grid');
+  grid.innerHTML = AGGREGATE_PRODUCTS.map(p => `
+    <div class="total-chip">
+      <div class="chip-product">${p.toUpperCase()}</div>
+      <div class="chip-value" id="ptot_${slugify(p)}">0.000</div>
+      <div class="chip-unit">TON</div>
+    </div>
+  `).join('');
+}
+
+function slugify(s) { return s.replace(/[^a-z0-9]/gi, '_').toLowerCase(); }
+
+// ── VALUE CHANGES ──
+function onValueChange(secId, itemId, product) {
+  updateSubtotal(secId);
+  updateProductTotal(product);
+  updateHeaderSubtotal(secId);
+}
+
+function onGlpChange(itemId) {
+  const val = parseFloat(document.getElementById('inp_' + itemId).value) || 0;
+  const bar = document.getElementById('glpbar_' + itemId);
+  if (bar) bar.style.width = Math.min(val, 100) + '%';
+}
+
+function updateSubtotal(secId) {
+  const sec = SECTIONS.find(s => s.id === secId);
+  if (!sec || sec.glp) return;
+  let total = 0;
+  sec.items.forEach(item => {
+    total += parseFloat(document.getElementById('inp_' + item.id)?.value || 0);
+  });
+  const el = document.getElementById('sub2_' + secId);
+  if (el) el.textContent = total.toFixed(3) + ' ton';
+  const el2 = document.getElementById('subtot_' + secId);
+  if (el2) el2.textContent = total.toFixed(3) + ' ton';
+}
+
+function updateHeaderSubtotal(secId) {
+  const sec = SECTIONS.find(s => s.id === secId);
+  if (!sec || sec.glp) return;
+  let total = 0;
+  sec.items.forEach(item => {
+    total += parseFloat(document.getElementById('inp_' + item.id)?.value || 0);
+  });
+  const el = document.getElementById('subtot_' + secId);
+  if (el) el.textContent = total.toFixed(3) + ' ton';
+}
+
+function updateProductTotal(product) {
+  if (!AGGREGATE_PRODUCTS.includes(product)) return;
+  let total = 0;
+  SECTIONS.forEach(sec => {
+    sec.items.forEach(item => {
+      if (item.product === product) {
+        total += parseFloat(document.getElementById('inp_' + item.id)?.value || 0);
+      }
+    });
+  });
+  const el = document.getElementById('ptot_' + slugify(product));
+  if (el) el.textContent = total.toFixed(3);
+}
+
+function updateAllSubtotals() {
+  SECTIONS.forEach(sec => {
+    if (!sec.glp) {
+      updateSubtotal(sec.id);
+      updateHeaderSubtotal(sec.id);
+    }
+  });
+  AGGREGATE_PRODUCTS.forEach(p => updateProductTotal(p));
+}
+
+function toggleSection(secId) {
+  const el = document.getElementById('sec_' + secId);
+  el.classList.toggle('collapsed');
+}
+
+// ── PERIOD LABEL ──
+function getPeriodLabel() {
+  const type = document.getElementById('period-type').value;
+  const month = document.getElementById('period-month').value;
+  const year = document.getElementById('period-year').value;
+  const months = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return (type === 'fin' ? 'FIN' : 'MID') + '-' + months[month] + '-' + year;
+}
+
+document.addEventListener('change', function(e) {
+  if (['period-type','period-month','period-year'].includes(e.target.id)) {
+    document.getElementById('submit-period-label').textContent = getPeriodLabel();
+  }
+});
+
+document.getElementById('submit-period-label').textContent = getPeriodLabel();
+
+// ── SUBMIT ──
+async function submitStock() {
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'GUARDANDO...';
+
+  const period = getPeriodLabel();
+  const row = { period, usuario: currentUser, timestamp: new Date().toISOString() };
+
+  SECTIONS.forEach(sec => {
+    sec.items.forEach(item => {
+      const val = parseFloat(document.getElementById('inp_' + item.id)?.value || 0);
+      row[item.id] = val;
+    });
+  });
+
+  try {
+    const resp = await fetch(SCRIPT_URL + '?action=saveStock', {
+      method: 'POST',
+      body: JSON.stringify(row)
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      showToast('Stock guardado: ' + period, 'success');
+      loadHistorial();
+    } else {
+      showToast('Error: ' + (data.error || 'desconocido'), 'error');
+    }
+  } catch(e) {
+    showToast('Error de conexión', 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'GUARDAR STOCK';
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  ['ingreso','historial','dashboard'].forEach(t => {
+    document.getElementById('view-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  document.getElementById('submit-bar').style.display =
+    (tab === 'ingreso' && currentRole === 'operario') ? 'flex' : 'none';
+  if (tab === 'dashboard') buildDashboard();
+}
+
+// ── LOAD HISTORIAL ──
+async function loadHistorial() {
+  const el = document.getElementById('hist-content');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>CARGANDO...</div>';
+  try {
+    const resp = await fetch(SCRIPT_URL + '?action=getStock');
+    const data = await resp.json();
+    historialData = data.rows || [];
+    renderHistorial();
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state">Error al cargar datos</div>';
+  }
+}
+
+function renderHistorial() {
+  const el = document.getElementById('hist-content');
+  if (!historialData.length) {
+    el.innerHTML = '<div class="empty-state">SIN REGISTROS AÚN</div>';
+    return;
+  }
+
+  // Build summary table: period + product totals
+  const rows = historialData.map(r => {
+    const totals = {};
+    AGGREGATE_PRODUCTS.forEach(p => {
+      let t = 0;
+      SECTIONS.forEach(sec => {
+        sec.items.forEach(item => {
+          if (item.product === p) t += parseFloat(r[item.id] || 0);
+        });
+      });
+      totals[p] = t;
+    });
+    return { period: r.period, usuario: r.usuario, timestamp: r.timestamp, totals };
+  });
+
+  const headers = ['PERÍODO', 'USUARIO', 'CPA', 'Aceite Soja', 'Afrechillo Trigo', 'Cascarilla', 'Pellet girasol', 'Hipro', 'Ración'];
+
+  el.innerHTML = `
+    <div class="hist-table-wrap">
+      <table>
+        <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td class="period">${r.period}</td>
+            <td>${r.usuario || ''}</td>
+            <td class="num">${r.totals['CPA']?.toFixed(2)}</td>
+            <td class="num">${r.totals['Aceite Soja']?.toFixed(2)}</td>
+            <td class="num">${r.totals['Afrechillo Trigo']?.toFixed(2)}</td>
+            <td class="num">${r.totals['Cascarilla']?.toFixed(2)}</td>
+            <td class="num">${r.totals['Pellet girasol']?.toFixed(2)}</td>
+            <td class="num">${r.totals['Hipro']?.toFixed(2)}</td>
+            <td class="num">${r.totals['Ración']?.toFixed(2)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ── DASHBOARD ──
+function buildDashboard() {
+  const el = document.getElementById('dash-content');
+  if (!historialData.length) {
+    el.innerHTML = '<div class="empty-state">SIN DATOS SUFICIENTES</div>';
+    return;
+  }
+
+  const products = ['CPA', 'Aceite Soja', 'Afrechillo Trigo', 'Cascarilla', 'Pellet girasol', 'Hipro', 'Ración', 'Maíz entero', 'Alfalfa pellet'];
+  const last8 = historialData.slice(-8);
+
+  const cards = products.map(p => {
+    const vals = last8.map(r => {
+      let t = 0;
+      SECTIONS.forEach(sec => sec.items.forEach(item => {
+        if (item.product === p) t += parseFloat(r[item.id] || 0);
+      }));
+      return { period: r.period, val: t };
+    });
+
+    const max = Math.max(...vals.map(v => v.val), 0.001);
+    const current = vals.length ? vals[vals.length - 1].val : 0;
+
+    const bars = vals.map(v => `
+      <div class="bar-wrap">
+        <div class="bar-val">${v.val > 0 ? v.val.toFixed(1) : ''}</div>
+        <div class="bar" style="height:${Math.round((v.val / max) * 60)}px" title="${v.period}: ${v.val.toFixed(3)} ton"></div>
+        <div class="bar-label">${v.period.split('-').slice(0,2).join('-')}</div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="chart-card">
+        <div class="chart-title">${p.toUpperCase()}</div>
+        <div class="current-val">${current.toFixed(2)}</div>
+        <div class="current-unit">TON ACTUALES</div>
+        <div class="mini-chart" style="margin-top:12px">${bars}</div>
+      </div>
+    `;
+  }).join('');
+
+  el.innerHTML = `<div class="dashboard-grid">${cards}</div>`;
+}
+
+// ── TOAST ──
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
